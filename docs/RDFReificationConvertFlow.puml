@@ -1,0 +1,53 @@
+@startuml RDFReificationConvertFlow
+title rdf_reification_convert.py - conversion flow
+
+skinparam shadowing false
+skinparam activity {
+  BackgroundColor #F8F8F8
+  BorderColor #444444
+  ArrowColor #444444
+}
+
+start
+:Parse CLI arguments;
+:Resolve input/output format;
+:Read RDF graph with rdflib;
+:Bind rdf and xsd prefixes;
+:Extract candidate reifiers\n(nodes with rdf:subject / rdf:predicate / rdf:object);
+
+if (candidate is complete and valid?) then (yes)
+  :Create ClassicCluster;
+  :Count reifiers for the same base triple;
+  :Detect existing asserted base triple;
+  :Count non-technical object references;
+else (no)
+  if (--strict?) then (yes)
+    :Raise ConversionError;
+    stop
+  else (no)
+    :Warn and leave candidate unchanged;
+  endif
+endif
+
+:Topologically order clusters\nfor nested reification;
+
+repeat
+  :Validate cluster for selected mode;
+  if (mode is annotation and base triple missing?) then (yes)
+    if (--assert-missing?) then (yes)
+      :Allow explicit assertion;
+    else (no)
+      :Raise ConversionError or warn in --lenient;
+    endif
+  endif
+
+  :Build TripleTerm;\nreplace nested reifiers when available;
+  :Create RDF 1.2 Turtle lines;
+  :Mark consumed technical triples,\nmetadata, and optional base triple;
+repeat while (more clusters?)
+
+:Emit unconsumed input triples\nordinary RDF, invalid lenient clusters,\nexternal reifier references;
+:Write VERSION "1.2" and used PREFIX declarations;
+:Write output Turtle;
+stop
+@enduml

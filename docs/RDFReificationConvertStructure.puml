@@ -1,0 +1,78 @@
+@startuml RDFReificationConvertStructure
+title rdf_reification_convert.py - main structures
+
+skinparam shadowing false
+skinparam class {
+  BackgroundColor #F8F8F8
+  BorderColor #444444
+  ArrowColor #444444
+}
+
+class Config <<dataclass>> {
+  mode: str
+  strict: bool
+  assert_missing: bool
+  keep_classic: bool
+}
+
+class TripleTerm <<dataclass>> {
+  subject: object
+  predicate: URIRef
+  object: object
+}
+
+class ClassicCluster <<dataclass>> {
+  reifier: Identifier
+  subject: Identifier
+  predicate: URIRef
+  object: Identifier
+  metadata: tuple[triple]
+  technical: tuple[triple]
+  asserted: bool
+  reification_count: int
+  nontechnical_object_references: int
+  raw_triple()
+}
+
+class TurtleWriter {
+  graph: Graph
+  used_prefixes: set[str]
+  prefix_lines()
+  term(value)
+  iri(value)
+  literal(value)
+  triple_term(value)
+  reifying_triple(value, reifier)
+  predicate_object_list(triples)
+  annotation_block(triples)
+}
+
+class ConversionError <<exception>>
+
+package "Pipeline functions" {
+  class read_graph <<function>>
+  class extract_clusters <<function>>
+  class topological_clusters <<function>>
+  class validate_cluster <<function>>
+  class cluster_triple_term <<function>>
+  class conversion_lines <<function>>
+  class explicit_reifier_lines <<function>>
+  class convert_graph <<function>>
+  class convert_text <<function>>
+}
+
+read_graph --> "rdflib.Graph" : returns
+extract_clusters --> ClassicCluster : creates
+topological_clusters --> ClassicCluster : orders
+validate_cluster --> Config : reads
+cluster_triple_term --> TripleTerm : creates
+conversion_lines --> TurtleWriter : serializes with
+explicit_reifier_lines --> TurtleWriter : serializes with
+convert_graph --> Config : reads
+convert_graph --> TurtleWriter : owns
+convert_graph --> ClassicCluster : converts
+convert_text --> convert_graph : calls
+ConversionError ..> validate_cluster
+ConversionError ..> extract_clusters
+ConversionError ..> topological_clusters
+@enduml

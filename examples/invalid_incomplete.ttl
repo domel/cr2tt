@@ -1,0 +1,7 @@
+@prefix : <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+:stmt1 a rdf:Statement ;
+    rdf:subject :alice ;
+    rdf:predicate :knows ;
+    :source :dataset1 .

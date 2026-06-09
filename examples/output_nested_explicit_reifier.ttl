@@ -1,0 +1,6 @@
+VERSION "1.2"
+PREFIX : <http://example.org/>
+
+<< :alice :knows :bob ~ :stmt1 >> :source :dataset1 .
+
+<< :charlie :reported <<( :alice :knows :bob )>> ~ :stmt2 >> :source :auditLog .

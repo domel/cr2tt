@@ -1,0 +1,12 @@
+@prefix : <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:alice :knows :bob .
+
+:stmt1 a rdf:Statement ;
+    rdf:subject :alice ;
+    rdf:predicate :knows ;
+    rdf:object :bob ;
+    :source :dataset1 ;
+    :confidence "0.9"^^xsd:decimal .

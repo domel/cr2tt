@@ -1,0 +1,5 @@
+VERSION "1.2"
+PREFIX : <http://example.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+:alice :knows :bob ~ :stmt1 {| :confidence "0.9"^^xsd:decimal ; :source :dataset1 |} .

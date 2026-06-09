@@ -1,0 +1,6 @@
+VERSION "1.2"
+PREFIX ex: <http://example.org/>
+
+<< ex:Bob ex:knows ex:Alice >> ex:certainty "0.9" .
+
+<< ex:System ex:validates <<( ex:Bob ex:knows ex:Alice )>> >> ex:source "LogA" .

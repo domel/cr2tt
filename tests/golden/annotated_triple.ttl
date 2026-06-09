@@ -1,0 +1,4 @@
+VERSION "1.2"
+PREFIX : <http://example.org/>
+
+:s :p :o ~ :r {| :source :dataset1 |} .

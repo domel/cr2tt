@@ -1,0 +1,53 @@
+@startuml RDFReificationConvertModes
+title rdf_reification_convert.py - output mode decisions
+
+skinparam shadowing false
+skinparam activity {
+  BackgroundColor #F8F8F8
+  BorderColor #444444
+  ArrowColor #444444
+}
+
+start
+:Input ClassicCluster + Config.mode;
+
+switch (mode)
+case (triple-terms)
+  :Emit\nr rdf:reifies <<( s p o )>> .;
+  :Keep subject metadata as ordinary triples;
+case (reifying-triples)
+  if (reifier is local blank node\nand has one reification\nand no external object refs?) then (yes)
+    :Emit\n<< s p o >> metadata .;
+    :Consume subject metadata;
+  else (no)
+    :Warn and preserve identity;
+    :Emit explicit reifier syntax or rdf:reifies fallback;
+  endif
+case (explicit-reifier)
+  if (metadata exists?) then (yes)
+    :Emit\n<< s p o ~ r >> metadata .;
+    :Consume subject metadata;
+  else (no)
+    :Emit\nr rdf:reifies <<( s p o )>> .;
+  endif
+case (annotated-triple)
+  if (base triple asserted\nor --assert-missing?) then (yes)
+    :Emit\ns p o ~ r {| metadata |} .;
+    :Consume subject metadata\nand asserted input base triple if present;
+  else (no)
+    :Error in --strict\nor warn in --lenient;
+  endif
+case (annotated-triple-expanded)
+  if (base triple asserted\nor --assert-missing?) then (yes)
+    :Emit\ns p o .;
+    :Emit\n<< s p o ~ r >> metadata .;
+    :Consume subject metadata\nand asserted input base triple if present;
+  else (no)
+    :Error in --strict\nor warn in --lenient;
+  endif
+endswitch
+
+:Drop technical classic triples by default;
+:Preserve ordinary triples and external references;
+stop
+@enduml
