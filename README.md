@@ -48,6 +48,7 @@ Useful options:
 --allow-asserting-conversion
 --validate-only
 --keep-statement-type
+--verbose
 --keep-classic
 --drop-classic
 --base IRI

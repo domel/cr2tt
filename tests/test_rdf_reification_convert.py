@@ -336,6 +336,30 @@ def test_validate_only_checks_input_without_creating_output(tmp_path: Path) -> N
     assert not output_path.exists()
 
 
+def test_verbose_writes_progress_to_stderr(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    input_path = tmp_path / "input.ttl"
+    input_path.write_text(SIMPLE_INPUT, encoding="utf-8")
+
+    result = main(
+        [
+            "--input",
+            str(input_path),
+            "--mode",
+            "reified-triple-expanded",
+            "--verbose",
+        ]
+    )
+
+    captured = capsys.readouterr()
+    assert result == 0
+    assert 'VERSION "1.2"' in captured.out
+    assert "rdf-reification-convert: starting conversion" in captured.err
+    assert "rdf-reification-convert: input parsed" in captured.err
+    assert "rdf-reification-convert: finished:" in captured.err
+
+
 def test_trig_named_graph_conversion(tmp_path: Path) -> None:
     input_path = tmp_path / "input.trig"
     output_path = tmp_path / "output.trig"

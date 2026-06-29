@@ -271,6 +271,13 @@ def warn(message: str) -> None:
     print(f"rdf-reification-convert: warning: {message}", file=sys.stderr)
 
 
+def info(message: str, enabled: bool) -> None:
+    """Print a progress message when verbose logging is enabled."""
+
+    if enabled:
+        print(f"rdf-reification-convert: {message}", file=sys.stderr)
+
+
 def die(message: str) -> None:
     print(f"rdf-reification-convert: error: {message}", file=sys.stderr)
     raise SystemExit(2)
@@ -1165,6 +1172,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--metrics-csv",
         help="append timing and cluster counters to this CSV file",
     )
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="print conversion progress messages to stderr",
+    )
     parser.add_argument("--base", help="base IRI used while parsing")
     parser.add_argument("--base-iri", dest="base", help=argparse.SUPPRESS)
     return parser
@@ -1229,9 +1241,15 @@ def main(argv: list[str] | None = None) -> int:
     args = normalize_args(build_parser().parse_args(argv))
     total_start = time.perf_counter()
     try:
+        info(
+            (f"starting conversion: input={args.input}, output={args.output}, mode={args.mode}"),
+            args.verbose,
+        )
+        info("parsing input", args.verbose)
         parse_start = time.perf_counter()
         rdf = read_rdf(args)
         parse_ms = (time.perf_counter() - parse_start) * 1000
+        info(f"input parsed in {parse_ms:.2f} ms", args.verbose)
 
         config = Config(
             mode=args.mode,
@@ -1245,16 +1263,33 @@ def main(argv: list[str] | None = None) -> int:
 
         conversion_start = time.perf_counter()
         if args.validate_only:
+            info("validating conversion only", args.verbose)
             stats = validate_rdf(rdf, config)
         elif args.output == "-":
+            info("writing converted RDF to stdout", args.verbose)
             stats = emit_converted_rdf(rdf, config, args.resolved_output_format, sys.stdout)
         else:
+            info(f"writing converted RDF to {args.output}", args.verbose)
             with Path(args.output).open("w", encoding="utf-8") as stream:
                 stats = emit_converted_rdf(rdf, config, args.resolved_output_format, stream)
         conversion_ms = (time.perf_counter() - conversion_start) * 1000
         total_ms = (time.perf_counter() - total_start) * 1000
+        info(
+            (
+                "finished: "
+                f"valid_clusters={stats.valid_clusters}, "
+                f"invalid_clusters={stats.invalid_clusters}, "
+                f"converted_clusters={stats.converted_clusters}, "
+                f"skipped_clusters={stats.skipped_clusters}, "
+                f"body_lines={stats.body_lines}, "
+                f"conversion_ms={conversion_ms:.2f}, "
+                f"total_ms={total_ms:.2f}"
+            ),
+            args.verbose,
+        )
 
         if args.metrics_csv:
+            info(f"appending metrics to {args.metrics_csv}", args.verbose)
             append_metrics_csv(
                 args.metrics_csv,
                 parse_ms=parse_ms,
