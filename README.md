@@ -32,7 +32,7 @@ https://www.w3.org/TR/rdf12-turtle/
 python3 rdf_reification_convert.py \
   --input input.ttl \
   --output output.ttl \
-  --mode triple-terms
+  --mode reified-triple-expanded
 ```
 
 Useful options:
@@ -40,10 +40,14 @@ Useful options:
 ```bash
 --input-format turtle
 --output-format turtle
---mode {triple-terms,reifying-triples,explicit-reifier,annotated-triple,annotated-triple-expanded}
+--mode {reified-triple-expanded,reified-triple,reified-triple-explicit,annotated-triple,annotated-triple-explicit,annotated-triple-expanded}
+--base-triple-policy {preserve,require,forbid-extra-asserted}
 --strict
 --lenient
 --assert-missing
+--allow-asserting-conversion
+--validate-only
+--keep-statement-type
 --keep-classic
 --drop-classic
 --base IRI
@@ -58,7 +62,10 @@ after conversion. `--keep-classic` keeps them beside the RDF 1.2 representation.
 
 ## Output Modes
 
-### triple-terms
+Legacy mode names `triple-terms`, `reifying-triples`, and `explicit-reifier`
+are still accepted as aliases.
+
+### reified-triple-expanded
 
 Does not assert `:s :p :o`.
 
@@ -71,11 +78,10 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 :r :metadata :value .
 ```
 
-### reifying-triples
+### reified-triple
 
-Uses the compact reifying triple syntax when it is safe to omit the old reifier
-identity. If the reifier is named or externally referenced, the converter falls
-back to explicit reifier syntax to preserve semantics.
+Uses the compact reifying triple syntax. It is valid only for a local blank node
+reifier with metadata and no external references to the old reifier.
 
 ```turtle
 VERSION "1.2"
@@ -84,7 +90,7 @@ PREFIX : <http://example.org/>
 << :s :p :o >> :metadata :value .
 ```
 
-### explicit-reifier
+### reified-triple-explicit
 
 Preserves the concrete classic reifier.
 
@@ -97,8 +103,20 @@ PREFIX : <http://example.org/>
 
 ### annotated-triple
 
-Asserts `:s :p :o`. The converter requires that the base triple already exists in
-the input graph, unless `--assert-missing` is passed.
+Asserts `:s :p :o` and uses annotation syntax without an explicit reifier. It is
+valid only for a local blank node reifier with metadata and no external
+references to the old reifier.
+
+```turtle
+VERSION "1.2"
+PREFIX : <http://example.org/>
+
+:s :p :o {| :metadata :value |} .
+```
+
+### annotated-triple-explicit
+
+Asserts `:s :p :o` and preserves the concrete classic reifier.
 
 ```turtle
 VERSION "1.2"

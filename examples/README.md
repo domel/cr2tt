@@ -13,7 +13,7 @@ Classic reification without an asserted base triple:
 python3 rdf_reification_convert.py \
   --input examples/simple_classic.ttl \
   --output examples/output_simple_triple_terms.ttl \
-  --mode triple-terms
+  --mode reified-triple-expanded
 ```
 
 The explicit reifier shorthand preserves the named reifier:
@@ -22,7 +22,7 @@ The explicit reifier shorthand preserves the named reifier:
 python3 rdf_reification_convert.py \
   --input examples/simple_classic.ttl \
   --output examples/output_simple_explicit_reifier.ttl \
-  --mode explicit-reifier
+  --mode reified-triple-explicit
 ```
 
 ## Local Blank Node Reifier
@@ -33,7 +33,7 @@ This case can safely use the implicit reifying triple syntax:
 python3 rdf_reification_convert.py \
   --input examples/blank_reifier.ttl \
   --output examples/output_blank_reifying_triples.ttl \
-  --mode reifying-triples
+  --mode reified-triple
 ```
 
 ## Annotated Triples
@@ -45,7 +45,7 @@ triple, so `--assert-missing` is not needed:
 python3 rdf_reification_convert.py \
   --input examples/asserted_annotation.ttl \
   --output examples/output_asserted_annotated_triple.ttl \
-  --mode annotated-triple
+  --mode annotated-triple-explicit
 ```
 
 Expanded annotation form:
@@ -63,7 +63,7 @@ unless the user explicitly allows assertion:
 ```bash
 python3 rdf_reification_convert.py \
   --input examples/simple_classic.ttl \
-  --mode annotated-triple
+  --mode annotated-triple-explicit
 ```
 
 Intentional assertion of a missing base triple:
@@ -72,19 +72,19 @@ Intentional assertion of a missing base triple:
 python3 rdf_reification_convert.py \
   --input examples/simple_classic.ttl \
   --output examples/output_simple_annotated_with_assert_missing.ttl \
-  --mode annotated-triple \
+  --mode annotated-triple-explicit \
   --assert-missing
 ```
 
 ## External Reference
 
-When another triple references the old reifier, use `explicit-reifier`:
+When another triple references the old reifier, use `reified-triple-explicit`:
 
 ```bash
 python3 rdf_reification_convert.py \
   --input examples/external_reference.ttl \
   --output examples/output_external_reference_explicit_reifier.ttl \
-  --mode explicit-reifier
+  --mode reified-triple-explicit
 ```
 
 ## Nested Reification
@@ -95,7 +95,7 @@ Nested classic reification is converted bottom-up:
 python3 rdf_reification_convert.py \
   --input examples/nested_reification.ttl \
   --output examples/output_nested_explicit_reifier.ttl \
-  --mode explicit-reifier
+  --mode reified-triple-explicit
 ```
 
 ## Lenient Validation
@@ -105,7 +105,7 @@ Strict mode fails on incomplete classic reification:
 ```bash
 python3 rdf_reification_convert.py \
   --input examples/invalid_incomplete.ttl \
-  --mode triple-terms
+  --mode reified-triple-expanded
 ```
 
 Lenient mode leaves the invalid pattern unchanged:
@@ -114,7 +114,7 @@ Lenient mode leaves the invalid pattern unchanged:
 python3 rdf_reification_convert.py \
   --input examples/invalid_incomplete.ttl \
   --output examples/output_invalid_lenient.ttl \
-  --mode triple-terms \
+  --mode reified-triple-expanded \
   --lenient
 ```
 
